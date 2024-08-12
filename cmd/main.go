@@ -44,7 +44,7 @@ func vkVideoRoute(c *gin.Context) {
 	}
 
 	if username == "" {
-		c.JSON(http.StatusBadRequest, "error")
+		c.String(http.StatusBadRequest, "error")
 		return
 	}
 
@@ -56,18 +56,18 @@ func vkVideoRoute(c *gin.Context) {
 			log.Println(err)
 		}
 		VK_TOKEN = vkToken
-		c.JSON(http.StatusBadRequest, "error")
+		c.String(http.StatusBadRequest, "error")
 		return
 	}
 
 	feed, err := vkvideo.GetFeed(username, VK_TOKEN, skipBefore)
 	if err != nil {
 		log.Println(err)
-		c.JSON(http.StatusBadRequest, "error")
+		c.String(http.StatusBadRequest, "error")
 		return
 	}
 
-	c.XML(http.StatusOK, feed)
+	c.String(http.StatusOK, feed)
 }
 
 func main() {

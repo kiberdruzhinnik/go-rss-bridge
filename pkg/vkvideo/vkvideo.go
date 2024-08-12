@@ -9,6 +9,7 @@ import (
 	"time"
 	"unicode"
 
+	mapset "github.com/deckarep/golang-set/v2"
 	"github.com/gorilla/feeds"
 	"github.com/kiberdruzhinnik/go-rss-bridge/pkg/utils"
 )
@@ -192,29 +193,29 @@ func GetFeed(username string, token VkApiToken, skipBefore int) (string, error) 
 		Link: &feeds.Link{
 			Href: fmt.Sprintf("https://vk.com/video/@%s", username),
 		},
+		Description: fmt.Sprintf("Лента RSS VK Video @%s", username),
 	}
 
+	seenSet := mapset.NewSet[string]()
 	for _, entry := range videos.Response.Videos {
-		// skip enabled
-		if skipBefore > -1 {
-			if entry.Date > skipBefore {
-				feed.Items = append(feed.Items, &feeds.Item{
-					Title:       entry.Title,
-					Link:        &feeds.Link{Href: fmt.Sprintf("https://vk.com/video%d_%d", entry.OwnerID, entry.ID)},
-					Description: entry.Description,
-					Created:     time.Unix(int64(entry.Date), 0),
-				})
-			}
-		} else {
-			feed.Items = append(feed.Items, &feeds.Item{
-				Title:       entry.Title,
-				Link:        &feeds.Link{Href: fmt.Sprintf("https://vk.com/video%d_%d", entry.OwnerID, entry.ID)},
-				Description: entry.Description,
-				Created:     time.Unix(int64(entry.Date), 0),
-			})
+		if skipBefore > entry.Date {
+			continue
+		}
+		videoUrl := fmt.Sprintf("https://vk.com/video%d_%d", entry.OwnerID, entry.ID)
+
+		if seenSet.Contains(videoUrl) {
+			continue
 		}
 
+		seenSet.Add(videoUrl)
+		feed.Items = append(feed.Items, &feeds.Item{
+			Title:       entry.Title,
+			Link:        &feeds.Link{Href: videoUrl},
+			Description: entry.Description,
+			Created:     time.Unix(int64(entry.Date), 0),
+		})
+
 	}
 
-	return feed.ToAtom()
+	return feed.ToRss()
 }
