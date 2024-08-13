@@ -213,6 +213,7 @@ func GetFeed(username string, token VkApiToken, skipBefore int) (string, error) 
 			Link:        &feeds.Link{Href: videoUrl},
 			Description: entry.Description,
 			Created:     time.Unix(int64(entry.Date), 0),
+			Id:          videoUrl,
 		})
 
 	}
