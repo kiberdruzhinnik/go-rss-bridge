@@ -16,11 +16,18 @@ import (
 var VK_TOKEN vkvideo.VkApiToken
 
 func prepareVkToken() {
-	vkToken, err := vkvideo.GetToken()
-	if err != nil {
-		log.Println(err)
+	for {
+		log.Println("Trying to obtain VK Video anonymous token")
+		vkToken, err := vkvideo.GetToken()
+		if err != nil {
+			log.Println(err)
+			time.Sleep(10 * time.Second)
+			continue
+		}
+		log.Println("Got VK Video anonymous token")
+		VK_TOKEN = vkToken
+		return
 	}
-	VK_TOKEN = vkToken
 }
 
 func init() {
