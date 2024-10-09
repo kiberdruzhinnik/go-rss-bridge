@@ -111,8 +111,8 @@ func dzenRoute(c *gin.Context) {
 }
 
 func rutubeRoute(c *gin.Context) {
-	username := strings.TrimSpace(c.Param("username"))
-	username = utils.StringsAllowlist(username, rutube.VALID_USERNAME_PATTERN)
+	channelId := strings.TrimSpace(c.Param("channel_id"))
+	channelId = utils.StringsAllowlist(channelId, rutube.VALID_CHANNEL_ID_PATTERN)
 
 	skipBeforeStr := strings.TrimSpace(c.Query("skip_before"))
 	skipBeforeStr = utils.StringsAllowlist(skipBeforeStr, rutube.VALID_SKIP_BEFORE_PATTERN)
@@ -126,12 +126,12 @@ func rutubeRoute(c *gin.Context) {
 		skipBefore = parsed
 	}
 
-	if username == "" {
+	if channelId == "" || len(channelId) < 5 {
 		c.String(http.StatusBadRequest, "error")
 		return
 	}
 
-	feed, err := rutube.GetFeed(username, skipBefore)
+	feed, err := rutube.GetFeed(channelId, skipBefore)
 	if err != nil {
 		log.Println(err)
 		c.String(http.StatusBadRequest, "error")
@@ -149,7 +149,7 @@ func main() {
 
 	router.GET("/vkvideo/:username", vkVideoRoute)
 	router.GET("/dzen/:username", dzenRoute)
-	router.GET("/rutube/:username", rutubeRoute)
+	router.GET("/rutube/:channel_id", rutubeRoute)
 
 	log.Fatal(router.Run(":8080"))
 }

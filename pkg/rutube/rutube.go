@@ -19,12 +19,8 @@ import (
 
 const RUTUBE_SITE = "https://rutube.ru"
 
-var VALID_USERNAME_PATTERN = []*unicode.RangeTable{
-	unicode.Letter,
+var VALID_CHANNEL_ID_PATTERN = []*unicode.RangeTable{
 	unicode.Digit,
-	{R16: []unicode.Range16{{'_', '_', 1}}},
-	{R16: []unicode.Range16{{'-', '-', 1}}},
-	{R16: []unicode.Range16{{'.', '.', 1}}},
 }
 
 var VALID_SKIP_BEFORE_PATTERN = []*unicode.RangeTable{
@@ -106,8 +102,8 @@ func fixJsonEscapes(jsonString string) string {
 	return fixedJson
 }
 
-func GetLatestVideosByUsername(username string) (RutubeVideos, error) {
-	url := fmt.Sprintf("%s/channel/%s/", RUTUBE_SITE, username)
+func GetLatestVideosByChannelID(channelId string) (RutubeVideos, error) {
+	url := fmt.Sprintf("%s/channel/%s/", RUTUBE_SITE, channelId)
 
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
@@ -142,7 +138,7 @@ func GetLatestVideosByUsername(username string) (RutubeVideos, error) {
 		return RutubeVideos{}, err
 	}
 
-	key := fmt.Sprintf("videos(%s)", username)
+	key := fmt.Sprintf("videos(%s)", channelId)
 
 	var rutubeVideos RutubeVideos
 
@@ -163,8 +159,8 @@ func GetLatestVideosByUsername(username string) (RutubeVideos, error) {
 	return rutubeVideos, nil
 }
 
-func GetFeed(username string, skipBefore int) (string, error) {
-	videos, err := GetLatestVideosByUsername(username)
+func GetFeed(channelId string, skipBefore int) (string, error) {
+	videos, err := GetLatestVideosByChannelID(channelId)
 	if err != nil {
 		return "", err
 	}
@@ -174,11 +170,11 @@ func GetFeed(username string, skipBefore int) (string, error) {
 	}
 
 	feed := &feeds.Feed{
-		Title: fmt.Sprintf("Rutube @%s", username),
+		Title: fmt.Sprintf("Rutube @%s", channelId),
 		Link: &feeds.Link{
-			Href: fmt.Sprintf("https://rutube.ru/channel/%s/", username),
+			Href: fmt.Sprintf("https://rutube.ru/channel/%s/", channelId),
 		},
-		Description: fmt.Sprintf("Лента RSS Rutube @%s", username),
+		Description: fmt.Sprintf("Лента RSS Rutube @%s", channelId),
 	}
 
 	seenSet := mapset.NewSet[string]()
