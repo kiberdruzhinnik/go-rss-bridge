@@ -9,6 +9,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/kiberdruzhinnik/go-rss-bridge/pkg/dzen"
+	"github.com/kiberdruzhinnik/go-rss-bridge/pkg/rutube"
 	"github.com/kiberdruzhinnik/go-rss-bridge/pkg/utils"
 	"github.com/kiberdruzhinnik/go-rss-bridge/pkg/vkvideo"
 )
@@ -109,6 +110,37 @@ func dzenRoute(c *gin.Context) {
 	c.String(http.StatusOK, feed)
 }
 
+func rutubeRoute(c *gin.Context) {
+	username := strings.TrimSpace(c.Param("username"))
+	username = utils.StringsAllowlist(username, rutube.VALID_USERNAME_PATTERN)
+
+	skipBeforeStr := strings.TrimSpace(c.Query("skip_before"))
+	skipBeforeStr = utils.StringsAllowlist(skipBeforeStr, rutube.VALID_SKIP_BEFORE_PATTERN)
+	skipBefore := -1
+	if skipBeforeStr != "" {
+		parsed, err := strconv.Atoi(skipBeforeStr)
+		if err != nil {
+			log.Printf("Got enormous int in skip_before = %s, defaulting to -1\n", skipBeforeStr)
+			parsed = -1
+		}
+		skipBefore = parsed
+	}
+
+	if username == "" {
+		c.String(http.StatusBadRequest, "error")
+		return
+	}
+
+	feed, err := rutube.GetFeed(username, skipBefore)
+	if err != nil {
+		log.Println(err)
+		c.String(http.StatusBadRequest, "error")
+		return
+	}
+
+	c.String(http.StatusOK, feed)
+}
+
 func main() {
 	router := gin.New()
 
@@ -117,6 +149,7 @@ func main() {
 
 	router.GET("/vkvideo/:username", vkVideoRoute)
 	router.GET("/dzen/:username", dzenRoute)
+	router.GET("/rutube/:username", rutubeRoute)
 
 	log.Fatal(router.Run(":8080"))
 }
