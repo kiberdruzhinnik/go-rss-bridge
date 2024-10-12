@@ -124,7 +124,7 @@ func GetLatestVideosByChannelID(channelId string) (RutubeVideos, error) {
 	var rutubeJson RutubeJSON
 	err = json.Unmarshal([]byte(parsed), &rutubeJson)
 	if err != nil {
-		fmt.Println("Error unmarshalling JSON:", err)
+		log.Println("Error unmarshalling JSON:", err)
 		return RutubeVideos{}, err
 	}
 
@@ -148,7 +148,7 @@ func GetLatestVideosByChannelID(channelId string) (RutubeVideos, error) {
 			rutubeVideos.Results = append(rutubeVideos.Results, rutubeVideo)
 		}
 	} else {
-		fmt.Println("Key not found:", key)
+		log.Println("Key not found:", key)
 	}
 
 	return rutubeVideos, nil
