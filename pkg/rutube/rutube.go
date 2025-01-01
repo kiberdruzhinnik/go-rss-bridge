@@ -37,28 +37,18 @@ type RutubeVideos struct {
 	Results []RutubeVideo
 }
 
-type Video struct {
-	VideoURL      string `json:"video_url"`
-	Title         string `json:"title"`
-	PublicationTS string `json:"publication_ts"`
-}
-
-type Results struct {
-	Results []Video `json:"results"`
-}
-
-type Data struct {
-	Data Results `json:"data"`
-}
-
-type Videos map[string]Data
-
-type Queries struct {
-	Queries Videos `json:"queries"`
-}
-
-type API struct {
-	API Queries `json:"api"`
+type RutubeJSON struct {
+	API struct {
+		Queries map[string]struct {
+			Data struct {
+				Results []struct {
+					VideoURL      string `json:"video_url"`
+					Title         string `json:"title"`
+					PublicationTS string `json:"publication_ts"`
+				} `json:"results"`
+			} `json:"data"`
+		} `json:"queries"`
+	} `json:"api"`
 }
 
 func indexAt(s, sep string, n int) int {
@@ -131,18 +121,23 @@ func GetLatestVideosByChannelID(channelId string) (RutubeVideos, error) {
 	parsed = fmt.Sprintf("{%s}", parsed)
 	parsed = fixJsonEscapes(parsed)
 
-	var api API
-	err = json.Unmarshal([]byte(parsed), &api)
+	var rutubeJson RutubeJSON
+	err = json.Unmarshal([]byte(parsed), &rutubeJson)
 	if err != nil {
-		fmt.Println("Error unmarshalling JSON:", err)
+		log.Println("Error unmarshalling JSON:", err)
 		return RutubeVideos{}, err
 	}
 
-	key := fmt.Sprintf("videos(%s)", channelId)
+	var key string
+	for k := range rutubeJson.API.Queries {
+		if strings.HasPrefix(k, "videos(") {
+			key = k
+			break
+		}
+	}
 
 	var rutubeVideos RutubeVideos
-
-	if videoData, ok := api.API.Queries[key]; ok {
+	if videoData, ok := rutubeJson.API.Queries[key]; ok {
 		for _, video := range videoData.Data.Results {
 			date, err := parseTime(video.PublicationTS)
 			if err != nil {
@@ -153,7 +148,7 @@ func GetLatestVideosByChannelID(channelId string) (RutubeVideos, error) {
 			rutubeVideos.Results = append(rutubeVideos.Results, rutubeVideo)
 		}
 	} else {
-		fmt.Println("Key not found:", key)
+		log.Println("Key not found:", key)
 	}
 
 	return rutubeVideos, nil
