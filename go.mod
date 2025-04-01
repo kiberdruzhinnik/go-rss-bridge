@@ -1,10 +1,10 @@
 module github.com/kiberdruzhinnik/go-rss-bridge
 
 go 1.22.6
-toolchain go1.23.7
+toolchain go1.24.1
 
 require (
-	github.com/deckarep/golang-set/v2 v2.7.0
+	github.com/deckarep/golang-set/v2 v2.8.0
 	github.com/gin-gonic/gin v1.10.0
 	github.com/gorilla/feeds v1.2.0
 )
