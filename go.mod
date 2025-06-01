@@ -6,7 +6,7 @@ toolchain go1.24.3
 
 require (
 	github.com/deckarep/golang-set/v2 v2.8.0
-	github.com/gin-gonic/gin v1.10.0
+	github.com/gin-gonic/gin v1.10.1
 	github.com/gorilla/feeds v1.2.0
 )
 
