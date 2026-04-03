@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/kiberdruzhinnik/go-rss-bridge/pkg/accentAm"
 	"github.com/kiberdruzhinnik/go-rss-bridge/pkg/dzen"
 	"github.com/kiberdruzhinnik/go-rss-bridge/pkg/rutube"
 	"github.com/kiberdruzhinnik/go-rss-bridge/pkg/utils"
@@ -141,6 +142,23 @@ func rutubeRoute(c *gin.Context) {
 	c.String(http.StatusOK, feed)
 }
 
+func accentAmRoute(c *gin.Context) {
+	fundName := strings.TrimSpace(c.Param("fund_name"))
+	fundName = utils.StringsAllowlist(fundName, accentAm.VALID_FUND_PATTERN)
+	if fundName == "" || len(fundName) < 5 {
+		c.String(http.StatusBadRequest, "error")
+		return
+	}
+	feed, err := accentAm.GetFeed(fundName)
+	if err != nil {
+		log.Println(err)
+		c.String(http.StatusBadRequest, "error")
+		return
+	}
+
+	c.String(http.StatusOK, feed)
+}
+
 func main() {
 	router := gin.New()
 
@@ -150,6 +168,7 @@ func main() {
 	router.GET("/vkvideo/:username", vkVideoRoute)
 	router.GET("/dzen/:username", dzenRoute)
 	router.GET("/rutube/:channel_id", rutubeRoute)
+	router.GET("/accent-am/:fund_name", accentAmRoute)
 
 	log.Fatal(router.Run(":8080"))
 }
