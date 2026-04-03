@@ -109,6 +109,9 @@ func GetLatestMessagesByFundName(fundName string) ([]Message, error) {
 
 					title := strings.TrimSpace(a.Find(".document-item__title").Text())
 					url, _ := a.Attr("href")
+					if url[0] == '/' {
+						url = url[1:]
+					}
 
 					availability := strings.TrimSpace(
 						a.Find(".document-item__info__text span:last-child").Text(),
