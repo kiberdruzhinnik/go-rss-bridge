@@ -3,13 +3,13 @@ module github.com/kiberdruzhinnik/go-rss-bridge
 go 1.25.0
 
 require (
-	github.com/deckarep/golang-set/v2 v2.8.0
+	github.com/PuerkitoBio/goquery v1.12.0
+	github.com/deckarep/golang-set/v2 v2.9.0
 	github.com/gin-gonic/gin v1.12.0
 	github.com/gorilla/feeds v1.2.0
 )
 
 require (
-	github.com/PuerkitoBio/goquery v1.12.0 // indirect
 	github.com/andybalholm/cascadia v1.3.3 // indirect
 	github.com/bytedance/gopkg v0.1.3 // indirect
 	github.com/bytedance/sonic v1.15.0 // indirect
@@ -33,6 +33,7 @@ require (
 	github.com/quic-go/quic-go v0.59.0 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.3.1 // indirect
+	go.mongodb.org/mongo-driver v1.17.4 // indirect
 	go.mongodb.org/mongo-driver/v2 v2.5.0 // indirect
 	golang.org/x/arch v0.22.0 // indirect
 	golang.org/x/crypto v0.49.0 // indirect
